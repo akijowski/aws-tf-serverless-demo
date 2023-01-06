@@ -1,0 +1,70 @@
+version: 3
+
+vars:
+  LOCAL_DOCKER_IMAGE_NAME: hello-lambda
+  LOCAL_DOCKER_LAMBDA_PORT: 9000
+
+tasks:
+  default:
+    cmds:
+      - task: build
+      - task: package
+  clean: ./bin/clean
+  build:
+    desc: Builds all Go packages under the "functions" directory
+    cmds:
+      - ./bin/build
+    sources:
+      - functions/**/*.go
+    generates:
+      - out/**/*
+  package:
+    desc: Creates a zip archive for each Lambda binary
+    deps:
+      - build
+    cmds:
+      - ./bin/package
+    sources:
+      - out/**/*
+    generates:
+      - tmp/**
+
+  docker-build:
+    desc: Builds a Docker image to use for local Lambda testing
+    deps:
+      - package
+    cmds:
+      - docker build -t {{.LOCAL_DOCKER_IMAGE_NAME}} .
+  docker-run:
+    desc: Runs a Docker container to use for local Lambda testing
+    deps:
+      - docker-build
+    cmds:
+      - docker run --rm -p {{.LOCAL_DOCKER_LAMBDA_PORT}}:8080 {{.LOCAL_DOCKER_IMAGE_NAME}}
+  dc-up:
+    desc: Runs the docker-compose to use for local Lambda testing
+    deps:
+      - package
+    cmds:
+      - docker-compose -f docker-compose.local.yml up -d
+  dc-down:
+    desc: Stops the docker-compose containers used for local Lambda testing
+    cmds:
+      - docker-compose -f docker-compose.local.yml down
+
+  tf-init:
+    desc: Init the Terraform
+    dir: terraform/dev/us-east-1/my-serverless-app
+    cmds:
+      - terraform init
+
+  tf-plan:
+    desc: Run a Terraform plan
+    dir: terraform/dev/us-east-1/my-serverless-app
+    cmds:
+      - terraform plan -var-file="terraform.tfvars"
+
+  invoke-local:
+    desc: Sends a Lambda request to the running local Lambda docker container
+    cmds:
+      - curl -XPOST "http://localhost:{{.LOCAL_DOCKER_LAMBDA_PORT}}/2015-03-31/functions/function/invocations" -d '{"payload":"hello world!"}'

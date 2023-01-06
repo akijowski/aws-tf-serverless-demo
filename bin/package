@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+
+set -eou pipefail
+
+PROJECT_ROOT=${PWD#/*}
+PROJECT_ROOT=${PROJECT_ROOT:-/}
+
+zip_it_good() {
+  local root=$1
+  local dir=$2
+  cd "$dir"
+  chmod -R 755 .
+  zip "/$root/tmp/$dir.zip" "$dir"
+  cd ..
+}
+
+do_work() {
+  local startDir="out"
+  if [ -n "${1-}" ]; then
+    startDir="$1"
+  fi
+  echo -e "Using project root: $PROJECT_ROOT"
+  mkdir -p "/$PROJECT_ROOT/tmp"
+  cd "$startDir"
+  for dir in *; do
+    if [ -d "$dir" ]; then
+      echo -e "Zipping binary in $startDir/$dir/"
+      zip_it_good "$PROJECT_ROOT" "$dir"
+    fi
+  done
+  cd ..
+}
+
+do_work "$@"

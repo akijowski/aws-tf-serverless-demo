@@ -52,6 +52,11 @@ tasks:
     cmds:
       - docker-compose -f docker-compose.local.yml down
 
+  tf-docs:
+    desc: Generate Terraform Docs
+    cmds:
+      - docker run --rm -v "$(pwd)/terraform:/terraform-docs" -u $(id -u) quay.io/terraform-docs/terraform-docs:0.16.0 markdown --output-file README.md --output-mode inject --recursive --recursive-path ../../../modules /terraform-docs/dev/us-east-1/my-serverless-app
+
   tf-init:
     desc: Init the Terraform
     dir: terraform/dev/us-east-1/my-serverless-app

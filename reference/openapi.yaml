@@ -1,0 +1,61 @@
+openapi: 3.0.3
+info:
+  title: My Serverless App
+  description: Serverless Application using AWS Serverless architecture, deployed using Terraform
+  version: 1.0.0
+  contact:
+    name: Adam Kijowski
+    email: akijowski@twilio.com
+externalDocs:
+  description: Project repo
+  url: 'https://github.com/akijowski/aws-tf-serverless-demo'
+tags:
+  - name: mocks
+    description: mock operations
+paths:
+  /ping:
+    get:
+      tags:
+        - mocks
+      operationId: get-ping
+      summary: Ping Pong
+      description: When you ping, it pongs
+      responses:
+        '200':
+          $ref: '#/components/responses/PongResponse'
+      x-amazon-apigateway-request-validator: none
+      x-amazon-apigateway-integration:
+        type: mock
+        passthroughBehavior: never
+        responses:
+          default:
+            statusCode: '200'
+            responseTemplates:
+              text/plain:
+                "pong"
+
+
+x-amazon-apigateway-request-validators:
+  all:
+    validateRequestBody: true
+    validateRequestParameters: true
+  params-only:
+    validateRequestBody: false
+    validateRequestParameters: true
+  none:
+    validateRequestBody: false
+    validateRequestParameters: false
+
+components:
+  responses:
+    PongResponse:
+      description: A simple ping-pong response
+      content:
+        text/plain:
+          schema:
+            $ref: '#/components/schemas/Pong'
+  schemas:
+    Pong:
+      description: A simple ping-pong response body
+      type: string
+      example: 'pong'

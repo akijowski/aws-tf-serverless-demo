@@ -49,6 +49,6 @@ module "api_gateway" {
   source = "../../../modules/apigw"
 
   api_name                           = var.api_gateway_name
-  open_api_abs_path                  = abspath("../../../../resources/openapi.yml")
+  open_api_abs_path                  = abspath("../../../../resources/openapi.yaml")
   execution_permissions_lambda_names = [var.hello_lambda_function_name]
 }

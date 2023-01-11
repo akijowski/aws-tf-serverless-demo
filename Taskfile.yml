@@ -1,9 +1,5 @@
 version: 3
 
-vars:
-  LOCAL_DOCKER_IMAGE_NAME: hello-lambda
-  LOCAL_DOCKER_LAMBDA_PORT: 9000
-
 tasks:
   default:
     cmds:
@@ -29,18 +25,6 @@ tasks:
     generates:
       - tmp/**
 
-  docker-build:
-    desc: Builds a Docker image to use for local Lambda testing
-    deps:
-      - package
-    cmds:
-      - docker build -t {{.LOCAL_DOCKER_IMAGE_NAME}} .
-  docker-run:
-    desc: Runs a Docker container to use for local Lambda testing
-    deps:
-      - docker-build
-    cmds:
-      - docker run --rm -p {{.LOCAL_DOCKER_LAMBDA_PORT}}:8080 {{.LOCAL_DOCKER_IMAGE_NAME}}
   dc-up:
     desc: Runs the docker-compose to use for local Lambda testing
     deps:
@@ -72,4 +56,4 @@ tasks:
   invoke-local:
     desc: Sends a Lambda request to the running local Lambda docker container
     cmds:
-      - curl -XPOST "http://localhost:{{.LOCAL_DOCKER_LAMBDA_PORT}}/2015-03-31/functions/function/invocations" -d '{"payload":"hello world!"}'
+      - curl -XPOST "http://localhost:9000/2015-03-31/functions/function/invocations" -d @events/apigw-request.json

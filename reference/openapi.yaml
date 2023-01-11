@@ -10,9 +10,28 @@ externalDocs:
   description: Project repo
   url: 'https://github.com/akijowski/aws-tf-serverless-demo'
 tags:
+  - name: lambda
+    description: lambda operations
   - name: mocks
     description: mock operations
 paths:
+  /hello:
+    get:
+      tags:
+        - lambda
+      operationId: get-hello-world
+      summary: Hello World Lambda
+      description: Invokes a simple Hello World Lambda
+      responses:
+        '200':
+          $ref: '#/components/responses/HelloWorldResponse'
+      x-amazon-apigateway-request-validator: none
+      x-amazon-apigateway-integration:
+        type: aws_proxy
+        httpMethod: POST
+        passthroughBehavior: when_no_templates
+        uri: ${hello_lambda_invocation_arn}
+
   /ping:
     get:
       tags:
@@ -59,8 +78,25 @@ components:
         text/plain:
           schema:
             $ref: '#/components/schemas/Pong'
+    HelloWorldResponse:
+      description: Hello-world response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/HelloWorld'
   schemas:
     Pong:
       description: A simple ping-pong response body
       type: string
       example: 'pong'
+    HelloWorld:
+      description: A hello-world Lambda response
+      type: object
+      properties:
+        message:
+          type: string
+          minLength: 1
+      required:
+        - message
+      example:
+        message: Hello World

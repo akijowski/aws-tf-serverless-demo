@@ -1,6 +1,8 @@
 resource "aws_api_gateway_rest_api" "main" {
   name = var.api_name
-  body = file(var.open_api_abs_path)
+  body = templatefile(var.open_api_abs_path, {
+    hello_lambda_invocation_arn = var.hello_lambda_invocation_arn
+  })
 
   put_rest_api_mode = "merge"
 }
@@ -57,6 +59,7 @@ resource "aws_lambda_permission" "hello_lambda_api_permission" {
   statement_id_prefix = "api_gateway_invoke"
   action              = "lambda:InvokeFunction"
   function_name       = var.execution_permissions_lambda_names[count.index]
+  qualifier           = var.execution_permissions_lambda_qualifier
   principal           = "apigateway.amazonaws.com"
 
   source_arn = "${aws_api_gateway_rest_api.main.execution_arn}/*/*/*"

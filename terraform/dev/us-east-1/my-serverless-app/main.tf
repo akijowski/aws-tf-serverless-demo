@@ -51,4 +51,5 @@ module "api_gateway" {
   api_name                           = var.api_gateway_name
   open_api_abs_path                  = abspath("../../../../reference/openapi.yaml")
   execution_permissions_lambda_names = [var.hello_lambda_function_name]
+  hello_lambda_invocation_arn        = module.hello_lambda_function.function_invoke_arn
 }

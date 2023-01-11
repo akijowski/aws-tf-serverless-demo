@@ -26,7 +26,12 @@ paths:
       x-amazon-apigateway-request-validator: none
       x-amazon-apigateway-integration:
         type: mock
-        passthroughBehavior: never
+        passthroughBehavior: when_no_templates
+        requestTemplates:
+          # https://docs.aws.amazon.com/apigateway/latest/developerguide/how-to-mock-integration.html
+          'text/plain': '{"statusCode": 200}'
+          # This is only needed if you want to call the method through the console.  It only sends application/json
+          'application/json': '{"statusCode": 200}'
         responses:
           default:
             statusCode: '200'

@@ -11,6 +11,7 @@
 
 | Name | Version |
 |------|---------|
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 4.48.0 |
 | <a name="provider_random"></a> [random](#provider\_random) | 3.1.3 |
 
 ## Modules
@@ -18,6 +19,9 @@
 | Name | Source | Version |
 |------|--------|---------|
 | <a name="module_api_gateway"></a> [api\_gateway](#module\_api\_gateway) | ../../../modules/apigw | n/a |
+| <a name="module_codedeploy_app"></a> [codedeploy\_app](#module\_codedeploy\_app) | ../../../modules/codedeploy_app | n/a |
+| <a name="module_codedeploy_group_hello_lambda"></a> [codedeploy\_group\_hello\_lambda](#module\_codedeploy\_group\_hello\_lambda) | ../../../modules/codedeploy_group | n/a |
+| <a name="module_codedeploy_role"></a> [codedeploy\_role](#module\_codedeploy\_role) | ../../../modules/iam_role | n/a |
 | <a name="module_hello_lambda_artifact"></a> [hello\_lambda\_artifact](#module\_hello\_lambda\_artifact) | ../../../modules/s3_lambda_artifact | n/a |
 | <a name="module_hello_lambda_execution_role"></a> [hello\_lambda\_execution\_role](#module\_hello\_lambda\_execution\_role) | ../../../modules/iam_role | n/a |
 | <a name="module_hello_lambda_function"></a> [hello\_lambda\_function](#module\_hello\_lambda\_function) | ../../../modules/lambda | n/a |
@@ -28,6 +32,7 @@
 
 | Name | Type |
 |------|------|
+| [aws_iam_role_policy_attachment.main_codedeploy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [random_pet.lambda_bucket_name](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/pet) | resource |
 
 ## Inputs

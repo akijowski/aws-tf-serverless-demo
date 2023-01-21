@@ -19,6 +19,7 @@ No modules.
 |------|------|
 | [aws_iam_policy.lambda_basic_execution](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy) | data source |
 | [aws_iam_policy.lambda_xray_write](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy) | data source |
+| [aws_iam_policy_document.codedeploy_assume_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.lambda_assume_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 
 ## Inputs
@@ -29,6 +30,7 @@ No inputs.
 
 | Name | Description |
 |------|-------------|
+| <a name="output_codedeploy_assume_role_json"></a> [codedeploy\_assume\_role\_json](#output\_codedeploy\_assume\_role\_json) | n/a |
 | <a name="output_lambda_assume_role_json"></a> [lambda\_assume\_role\_json](#output\_lambda\_assume\_role\_json) | n/a |
 | <a name="output_lambda_basic_execution_json"></a> [lambda\_basic\_execution\_json](#output\_lambda\_basic\_execution\_json) | n/a |
 | <a name="output_lambda_xray_write_json"></a> [lambda\_xray\_write\_json](#output\_lambda\_xray\_write\_json) | n/a |

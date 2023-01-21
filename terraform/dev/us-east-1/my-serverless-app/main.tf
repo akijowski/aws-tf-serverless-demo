@@ -53,3 +53,27 @@ module "api_gateway" {
   execution_permissions_lambda_names = [var.hello_lambda_function_name]
   hello_lambda_invocation_arn        = module.hello_lambda_function.function_invoke_arn
 }
+
+module "codedeploy_app" {
+  source                     = "../../../modules/codedeploy_app"
+  codedeploy_app_name_prefix = var.api_gateway_name
+}
+
+module "codedeploy_role" {
+  source                      = "../../../modules/iam_role"
+  role_name                   = "${var.api_gateway_name}-codedeploy-role"
+  role_description            = "Service role for CodeDeploy"
+  role_assumption_policy_json = module.iam_policies.codedeploy_assume_role_json
+}
+
+resource "aws_iam_role_policy_attachment" "main_codedeploy" {
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSCodeDeployRole"
+  role       = module.codedeploy_role.name
+}
+
+module "codedeploy_group_hello_lambda" {
+  source                            = "../../../modules/codedeploy_group"
+  codedeploy_app_name               = module.codedeploy_app.name
+  codedeploy_group_name_prefix      = "${var.api_gateway_name}-${var.hello_lambda_function_name}"
+  codedeploy_group_service_role_arn = module.codedeploy_role.arn
+}

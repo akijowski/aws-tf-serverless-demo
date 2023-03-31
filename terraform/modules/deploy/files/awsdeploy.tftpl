@@ -1,0 +1,10 @@
+#!/usr/env bash
+
+set -eou pipefail
+
+%{ for name in names ~}
+aws deploy create-deployment \
+    --application-name ${app_name} \
+    --deployment-group-name ${deploy_groups[name].deployment_group_name} \
+    --s3-location bucket=${bucket},bundleType=JSON,etag=${app_spec_files[name].etag},key=${app_spec_files[name].key}
+%{ endfor ~}

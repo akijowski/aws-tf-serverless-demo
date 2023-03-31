@@ -30,7 +30,7 @@ paths:
         type: aws_proxy
         httpMethod: POST
         passthroughBehavior: when_no_templates
-        uri: ${hello_lambda_invocation_arn}
+        uri: ${helloLambdaInvocationArn}
 
   /ping:
     get:

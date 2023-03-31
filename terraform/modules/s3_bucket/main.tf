@@ -14,5 +14,4 @@ resource "aws_s3_bucket_versioning" "main_versioning" {
 resource "aws_s3_bucket_acl" "main_acl" {
   bucket = aws_s3_bucket.main.id
   acl = "private"
-
 }

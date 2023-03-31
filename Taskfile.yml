@@ -40,15 +40,21 @@ tasks:
 
   tf-init:
     desc: Init the Terraform
-    dir: terraform/dev/us-east-1/my-serverless-app
+    dir: terraform/dev/us-east-2/my-serverless-app
     cmds:
       - terraform init
 
   tf-plan:
     desc: Run a Terraform plan
-    dir: terraform/dev/us-east-1/my-serverless-app
+    dir: terraform/dev/us-east-2/my-serverless-app
     cmds:
-      - terraform plan -var-file="terraform.tfvars"
+      - terraform plan -out=tf.out
+
+  tf-show:
+    desc: Read the Terraform plan file
+    dir: terraform/dev/us-east-2/my-serverless-app
+    cmds:
+      - terraform show tf.out
 
   invoke-local:
     desc: Sends a Lambda request to the running local Lambda docker container

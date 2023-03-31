@@ -1,29 +1,30 @@
-variable "function_alias_name" {
+variable "bucket_name" {
   type        = string
-  description = "The lambda function alias for the latest version"
-}
-
-variable "function_execution_role_arn" {
-  type        = string
-  description = "The lambda function execution IAM role ARN"
+  description = "The S3 bucket where the Lambda Zip file will be stored"
 }
 
 variable "function_name" {
   type        = string
-  description = "The lambda function name"
+  description = "The name of the Lambda function"
 }
 
-variable "function_s3_bucket" {
+variable "function_handler" {
   type        = string
-  description = "The S3 Bucket containing the deployment package"
+  description = "The handler Lambda will invoke on startup"
 }
 
-variable "function_s3_key" {
+variable "function_alias" {
   type        = string
-  description = "The S3 Object Key containing the deployment package"
+  description = "The name of the Alias that will point to the latest version"
 }
 
-variable "function_s3_object_version" {
+variable "abs_file_path" {
   type        = string
-  description = "The S3 Object Version containing the deployment package"
+  description = "The absolute file path to the zip archive"
+}
+
+variable "additional_inline_policy_json" {
+  type        = map(string)
+  description = "A map of policy name to json to add as inline policies to this lambda"
+  default     = {}
 }

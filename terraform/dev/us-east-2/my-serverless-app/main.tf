@@ -14,12 +14,16 @@ terraform {
 
 # Configure the AWS Provider
 provider "aws" {
-  region = "us-east-1"
+  region = "us-east-2"
+  profile = "adam"
   default_tags {
     tags = {
-      team = "kraken"
       project = "tf-serverless-demo"
       prod = "never"
     }
   }
+}
+
+module "app" {
+    source = "../../../apps/my-serverless-app"
 }

@@ -6,20 +6,17 @@ variable "open_api_abs_path" {
   type        = string
   description = "Absolute file path to the OpenAPI spec for the API body"
 }
-
-variable "hello_lambda_invocation_arn" {
-  type        = string
-  description = "The invocation ARN for the hello world lambda function"
+variable "open_api_variables" {
+  type        = map(string)
+  description = "Variable map to use when templating the OpenaPI spec"
 }
-
-variable "execution_permissions_lambda_names" {
-  type        = list(string)
-  description = "List of Lambda function names to grant execution permission for this API"
-  default     = []
+variable "lambda_execution_object" {
+  description = "Allows API Gateway to invoke Lambda.  Map of objects where the key is the Lambda function name and the object is configuration applied to a lambda permission resource"
+  type = map(object({
+    qualifier = string
+  }))
 }
-
-variable "execution_permissions_lambda_qualifier" {
-  type        = string
-  description = "The Alias or Version number to apply when granting execution permission for this API"
-  default     = "Live"
+variable "stage_variables" {
+  description = "Map of additional variables to add to an API Gateway stage"
+  type = map(string)
 }

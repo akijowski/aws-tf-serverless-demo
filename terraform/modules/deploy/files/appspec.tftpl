@@ -1,0 +1,15 @@
+${jsonencode({
+    "version" = 0.0
+    "Resources" = [{
+      (name) = {
+        "Type" = "AWS::Lambda::Function"
+        "Properties" = {
+          Name           = name
+          Alias          = group["alias"]
+          CurrentVersion = group["current_version"]
+          TargetVersion  = group["target_version"]
+        }
+      }
+    }]
+    "Hooks" = []
+  })}

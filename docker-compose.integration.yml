@@ -1,0 +1,22 @@
+version: '3.7'
+
+services:
+  hello-lambda:
+    image: hello-lambda
+    build:
+      context: .
+    container_name: hello-lambda
+
+  integration:
+    image: golang:1.20-bullseye
+    container_name: integration-test
+    depends_on:
+      - hello-lambda
+    volumes:
+      - .:/code
+    working_dir: /code/test/integration
+    command: go test -v -tags integration .
+    environment:
+      AWS_ACCESS_KEY_ID: defaultkey
+      AWS_SECRET_ACCESS_KEY: defaultsecret
+      AWS_REGION: us-east-1

@@ -1,0 +1,16 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "test/integration"
+		},
+		{
+			"path": "functions/hello"
+		}
+	],
+	"settings": {
+		"go.buildTags": "integration"
+	}
+}

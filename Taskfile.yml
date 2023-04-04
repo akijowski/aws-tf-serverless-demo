@@ -60,3 +60,9 @@ tasks:
     desc: Sends a Lambda request to the running local Lambda docker container
     cmds:
       - curl -XPOST "http://localhost:9000/2015-03-31/functions/function/invocations" -d @events/apigw-request.json
+
+  integration-test:
+    desc: Run integration test with docker-compose
+    cmds:
+       - docker compose -f docker-compose.integration.yml up --exit-code-from integration
+       - docker compose -f docker-compose.integration.yml down

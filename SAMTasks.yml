@@ -1,0 +1,8 @@
+version: 3
+
+tasks:
+  lambda:
+    desc: Start a local Lambda container using AWS SAM
+    dir: ./terraform/dev/us-east-2/my-serverless-app
+    cmds:
+      - sam local start-lambda --hook-name terraform --beta-features

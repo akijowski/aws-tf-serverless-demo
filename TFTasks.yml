@@ -1,0 +1,24 @@
+version: '3'
+
+tasks:
+  docs:
+    desc: Generate Terraform Docs
+    silent: true
+    cmds:
+      - docker run --rm -v "$(pwd)/terraform:/terraform-docs" -u $(id -u) quay.io/terraform-docs/terraform-docs:0.16.0 /terraform-docs/modules
+      - rm ./terraform/modules/README.md
+  init:
+    desc: Init the Terraform
+    dir: terraform/dev/us-east-2/my-serverless-app
+    cmds:
+      - terraform init
+  plan:
+    desc: Run a Terraform plan
+    dir: terraform/dev/us-east-2/my-serverless-app
+    cmds:
+      - terraform plan -out=tf.out
+  show:
+    desc: Read the Terraform plan file
+    dir: terraform/dev/us-east-2/my-serverless-app
+    cmds:
+      - terraform show tf.out

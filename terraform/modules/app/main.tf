@@ -1,3 +1,8 @@
+/**
+* # Serverless Demo App
+*
+* This module is the `main` application and can be used as a root module for deployment.
+*/
 locals {
   lambdas = {
     hello-world = {

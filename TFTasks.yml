@@ -4,6 +4,8 @@ tasks:
   docs:
     desc: Generate Terraform Docs
     silent: true
+    aliases:
+      - doc
     cmds:
       - docker run --rm -v "$(pwd)/terraform:/terraform-docs" -u $(id -u) quay.io/terraform-docs/terraform-docs:0.16.0 /terraform-docs/modules
       - rm ./terraform/modules/README.md

@@ -55,20 +55,20 @@ module "lambda_functions" {
 }
 
 # CodeDeploy
-module "code_deploy" {
-  source = "../../modules/deploy"
+# module "code_deploy" {
+#   source = "../../modules/deploy"
 
-  app_prefix = var.app_name
-  groups = { for name, lambda in module.lambda_functions : name => {
-    config_name = "CodeDeployDefault.LambdaAllAtOnce"
-    alias = "Live"
-    current_version = lambda.function_version > 1 ? lambda.function_version - 1 : lambda.function_version
-    target_version = lambda.function_version
-  } }
-  s3_bucket = module.project_bucket.s3_bucket_name
-  deploy_command_abs_path = abspath(var.code_deploy_script_path)
+#   app_prefix = var.app_name
+#   groups = { for name, _ in local.lambdas : name => {
+#     config_name     = "CodeDeployDefault.LambdaAllAtOnce"
+#     alias           = "Live"
+#     current_version = module.lambda_functions[name].function_version > 1 ? module.lambda_functions[name].function_version - 1 : module.lambda_functions[name].function_version
+#     target_version  = module.lambda_functions[name].function_version
+#   } }
+#   s3_bucket               = module.project_bucket.s3_bucket_name
+#   deploy_command_abs_path = abspath(var.code_deploy_script_path)
 
-  depends_on = [
-    module.lambda_functions
-  ]
-}
+#   depends_on = [
+#     module.lambda_functions
+#   ]
+# }

@@ -1,5 +1,11 @@
 version: 3
 
+includes:
+  tf: ./TFTasks.yml
+  sam:
+    taskfile: ./SAMTasks.yml
+    internal: true
+
 tasks:
   default: task --list
   clean: ./bin/clean
@@ -22,39 +28,12 @@ tasks:
     generates:
       - tmp/**
 
-  dc-up:
-    desc: Runs the docker-compose to use for local Lambda testing
+  sam-local:
+    desc: Start a Lambda container with AWS SAM
     deps:
       - package
     cmds:
-      - docker-compose -f docker-compose.local.yml up -d
-  dc-down:
-    desc: Stops the docker-compose containers used for local Lambda testing
-    cmds:
-      - docker-compose -f docker-compose.local.yml down
-
-  tf-docs:
-    desc: Generate Terraform Docs
-    cmds:
-      - docker run --rm -v "$(pwd)/terraform:/terraform-docs" -u $(id -u) quay.io/terraform-docs/terraform-docs:0.16.0 markdown --output-file README.md --output-mode inject --recursive --recursive-path ../../../modules /terraform-docs/dev/us-east-1/my-serverless-app
-
-  tf-init:
-    desc: Init the Terraform
-    dir: terraform/dev/us-east-2/my-serverless-app
-    cmds:
-      - terraform init
-
-  tf-plan:
-    desc: Run a Terraform plan
-    dir: terraform/dev/us-east-2/my-serverless-app
-    cmds:
-      - terraform plan -out=tf.out
-
-  tf-show:
-    desc: Read the Terraform plan file
-    dir: terraform/dev/us-east-2/my-serverless-app
-    cmds:
-      - terraform show tf.out
+      - task: sam:lambda
 
   invoke-local:
     desc: Sends a Lambda request to the running local Lambda docker container

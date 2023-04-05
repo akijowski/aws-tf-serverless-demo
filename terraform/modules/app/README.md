@@ -15,10 +15,10 @@ No providers.
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_api"></a> [api](#module\_api) | ../../modules/apigw | n/a |
-| <a name="module_iam_policies"></a> [iam\_policies](#module\_iam\_policies) | ../../modules/iam_policies | n/a |
-| <a name="module_lambda_functions"></a> [lambda\_functions](#module\_lambda\_functions) | ../../modules/lambda | n/a |
-| <a name="module_project_bucket"></a> [project\_bucket](#module\_project\_bucket) | ../../modules/s3_bucket | n/a |
+| <a name="module_api"></a> [api](#module\_api) | ../apigw | n/a |
+| <a name="module_iam_policies"></a> [iam\_policies](#module\_iam\_policies) | ../iam_policies | n/a |
+| <a name="module_lambda_functions"></a> [lambda\_functions](#module\_lambda\_functions) | ../lambda | n/a |
+| <a name="module_project_bucket"></a> [project\_bucket](#module\_project\_bucket) | ../s3_bucket | n/a |
 
 ## Resources
 

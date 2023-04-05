@@ -4,31 +4,32 @@
 * This module is the `main` application and can be used as a root module for deployment.
 */
 locals {
+  root_dir_rel_path = "${path.module}/../../.."
   lambdas = {
     hello-world = {
       function_handler = "hello"
-      abs_file_path    = abspath("../../../../tmp/hello.zip")
+      abs_file_path    = abspath("${local.root_dir_rel_path}/tmp/hello.zip")
     }
   }
 }
 
 # IAM Policies
 module "iam_policies" {
-  source = "../../modules/iam_policies"
+  source = "../iam_policies"
 }
 
 # Project S3 bucket
 module "project_bucket" {
-  source        = "../../modules/s3_bucket"
+  source        = "../s3_bucket"
   bucket_prefix = "${var.app_name}-"
 }
 
 # Project API Gateway
 module "api" {
-  source = "../../modules/apigw"
+  source = "../apigw"
 
   api_name                = var.app_name
-  open_api_abs_path       = abspath("../../../../reference/openapi.yaml")
+  open_api_abs_path       = abspath("${local.root_dir_rel_path}/reference/openapi.yaml")
   lambda_execution_object = { for name, _ in local.lambdas : name => { qualifier = "Live" } }
 
   stage_variables = {}
@@ -45,7 +46,7 @@ module "api" {
 # Project Lambdas
 module "lambda_functions" {
   for_each = try(local.lambdas, {})
-  source   = "../../modules/lambda"
+  source   = "../lambda"
 
   abs_file_path    = each.value.abs_file_path
   bucket_name      = module.project_bucket.s3_bucket_name

@@ -5,9 +5,9 @@ ${jsonencode({
         "Type" = "AWS::Lambda::Function"
         "Properties" = {
           Name           = name
-          Alias          = group["alias"]
-          CurrentVersion = group["current_version"]
-          TargetVersion  = group["target_version"]
+          Alias          = alias
+          CurrentVersion = current_version
+          TargetVersion  = target_version
         }
       }
     }]

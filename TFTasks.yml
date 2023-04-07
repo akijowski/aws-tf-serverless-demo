@@ -17,10 +17,21 @@ tasks:
   plan:
     desc: Run a Terraform plan
     dir: terraform/dev/us-east-2/my-serverless-app
+    sources:
+      - terraform/**/tf.out
     cmds:
       - terraform plan -out=tf.out
   show:
     desc: Read the Terraform plan file
+    deps:
+      - plan
     dir: terraform/dev/us-east-2/my-serverless-app
     cmds:
       - terraform show tf.out
+  apply:
+    desc: Apply the Terraform plan file
+    deps:
+      - plan
+    dir: terraform/dev/us-east-2/my-serverless-app
+    cmds:
+      - terraform apply tf.out

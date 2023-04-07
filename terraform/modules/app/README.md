@@ -16,6 +16,7 @@ No providers.
 | Name | Source | Version |
 |------|--------|---------|
 | <a name="module_api"></a> [api](#module\_api) | ../apigw | n/a |
+| <a name="module_code_deploy"></a> [code\_deploy](#module\_code\_deploy) | ../deploy | n/a |
 | <a name="module_iam_policies"></a> [iam\_policies](#module\_iam\_policies) | ../iam_policies | n/a |
 | <a name="module_lambda_functions"></a> [lambda\_functions](#module\_lambda\_functions) | ../lambda | n/a |
 | <a name="module_project_bucket"></a> [project\_bucket](#module\_project\_bucket) | ../s3_bucket | n/a |
@@ -29,12 +30,17 @@ No resources.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_app_name"></a> [app\_name](#input\_app\_name) | The name for the project application | `string` | `"my-serverless-app"` | no |
-| <a name="input_code_deploy_script_path"></a> [code\_deploy\_script\_path](#input\_code\_deploy\_script\_path) | Path to the directory where a generated deploy script will be created.  It will be converted to an absolute path | `string` | `"../../../../tmp"` | no |
+| <a name="input_code_deploy_script_path"></a> [code\_deploy\_script\_path](#input\_code\_deploy\_script\_path) | Path to the directory (relative project root) where a generated deploy script will be created.  It will be converted to an absolute path | `string` | `"tmp"` | no |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
+| <a name="output_code_deploy_app_name"></a> [code\_deploy\_app\_name](#output\_code\_deploy\_app\_name) | Code Deploy App name |
+| <a name="output_code_deploy_appspec_etags"></a> [code\_deploy\_appspec\_etags](#output\_code\_deploy\_appspec\_etags) | The ETAGs for the created AppSpec files |
+| <a name="output_code_deploy_cmds"></a> [code\_deploy\_cmds](#output\_code\_deploy\_cmds) | n/a |
+| <a name="output_code_deploy_groups"></a> [code\_deploy\_groups](#output\_code\_deploy\_groups) | Code Deploy Groups |
+| <a name="output_code_deploy_role_arn"></a> [code\_deploy\_role\_arn](#output\_code\_deploy\_role\_arn) | Code Deploy service role ARN |
 | <a name="output_lambdas"></a> [lambdas](#output\_lambdas) | Map of the created Lambdas |
 | <a name="output_rest_api_access_log_arn"></a> [rest\_api\_access\_log\_arn](#output\_rest\_api\_access\_log\_arn) | The API Gateway access log ARN |
 | <a name="output_rest_api_arn"></a> [rest\_api\_arn](#output\_rest\_api\_arn) | The API Gateway ARN |

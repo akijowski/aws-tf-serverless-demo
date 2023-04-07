@@ -1,10 +1,14 @@
-#!/usr/env bash
+#!/usr/bin/env bash
 
 set -eou pipefail
 
 %{ for name in names ~}
+echo "creating deployment for ${name} function"
 aws deploy create-deployment \
     --application-name ${app_name} \
     --deployment-group-name ${deploy_groups[name].deployment_group_name} \
-    --s3-location bucket=${bucket},bundleType=JSON,etag=${app_spec_files[name].etag},key=${app_spec_files[name].key}
+    --s3-location bucket=${bucket},bundleType=JSON,etag=${app_spec_files[name].etag},key=${app_spec_files[name].key} \
+    --no-cli-pager \
+    --profile adam \
+    --region us-east-2
 %{ endfor ~}

@@ -39,11 +39,11 @@ No modules.
 
 | Name | Description |
 |------|-------------|
-| <a name="output_function_alias_arn"></a> [function\_alias\_arn](#output\_function\_alias\_arn) | The Lambda function Alias ARN |
-| <a name="output_function_arn"></a> [function\_arn](#output\_function\_arn) | The Lambda function ARN |
-| <a name="output_function_execution_role_arn"></a> [function\_execution\_role\_arn](#output\_function\_execution\_role\_arn) | The Lambda function execution IAM Role ARN |
-| <a name="output_function_invoke_arn"></a> [function\_invoke\_arn](#output\_function\_invoke\_arn) | The Lambda function invocation ARN.  This is useful for API Gateway |
-| <a name="output_function_log_group_arn"></a> [function\_log\_group\_arn](#output\_function\_log\_group\_arn) | The Lambda function log group ARN |
-| <a name="output_function_qualified_arn"></a> [function\_qualified\_arn](#output\_function\_qualified\_arn) | The Lambda function fully qualified ARN which includes the version or alias |
-| <a name="output_function_version"></a> [function\_version](#output\_function\_version) | The Lambda function latest version |
+| <a name="output_alias_arn"></a> [alias\_arn](#output\_alias\_arn) | The Lambda function Alias ARN |
+| <a name="output_arn"></a> [arn](#output\_arn) | The Lambda function ARN |
+| <a name="output_execution_role_arn"></a> [execution\_role\_arn](#output\_execution\_role\_arn) | The Lambda function execution IAM Role ARN |
+| <a name="output_invoke_arn"></a> [invoke\_arn](#output\_invoke\_arn) | The Lambda function invocation ARN.  This is useful for API Gateway |
+| <a name="output_log_group_arn"></a> [log\_group\_arn](#output\_log\_group\_arn) | The Lambda function log group ARN |
+| <a name="output_qualified_arn"></a> [qualified\_arn](#output\_qualified\_arn) | The Lambda function fully qualified ARN which includes the version or alias |
+| <a name="output_version"></a> [version](#output\_version) | The Lambda function latest version |
 <!-- END_TF_DOCS -->

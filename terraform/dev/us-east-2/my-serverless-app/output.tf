@@ -28,22 +28,22 @@ output "lambdas" {
   value       = module.app.lambdas
 }
 
-# output "code_deploy_app_name" {
-#   value = module.app.code_deploy_app_name
-# }
+output "code_deploy_app_name" {
+  value = module.app.code_deploy_app_name
+}
 
-# output "code_deploy_service_role_arn" {
-#   value = module.app.code_deploy_role_arn
-# }
+output "code_deploy_service_role_arn" {
+  value = module.app.code_deploy_role_arn
+}
 
-# output "code_deploy_groups" {
-#   value = module.app.code_deploy_groups
-# }
+output "code_deploy_groups" {
+  value = module.app.code_deploy_groups
+}
 
-# output "code_deploy_appspec_etags" {
-#   value = module.app.code_deploy_appspec_etags
-# }
+output "code_deploy_appspec_etags" {
+  value = module.app.code_deploy_appspec_etags
+}
 
-# output "code_deploy_cmds" {
-#   value = module.app.code_deploy_cmds
-# }
+output "code_deploy_cmds" {
+  value = module.app.code_deploy_cmds
+}

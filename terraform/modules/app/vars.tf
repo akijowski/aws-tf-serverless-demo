@@ -5,7 +5,7 @@ variable "app_name" {
 }
 
 variable "code_deploy_script_path" {
-  type = string
-  description = "Path to the directory where a generated deploy script will be created.  It will be converted to an absolute path"
-  default = "../../../../tmp"
+  type        = string
+  description = "Path to the directory (relative project root) where a generated deploy script will be created.  It will be converted to an absolute path"
+  default     = "tmp"
 }

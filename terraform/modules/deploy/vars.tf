@@ -11,10 +11,7 @@ variable "s3_bucket" {
 variable "groups" {
   type = map(object(
     {
-      config_name     = string
-      current_version = string
-      target_version  = string
-      alias           = string
+      deploy_config_name = string
     }
   ))
   description = "Map of deployment group settings.  Each key will be used as the name for a group and the values are additional settings to apply"
@@ -23,4 +20,15 @@ variable "groups" {
 variable "deploy_command_abs_path" {
   description = "The absolute path to write a script to run code deploy based on the generated appspec files"
   type        = string
+}
+
+variable "lambda_names" {
+  type        = set(string)
+  description = "Distinct set of Lambda names to look up.  The Lambda function must already exist prior to this module being executed"
+}
+
+variable "managed_alias" {
+  type        = string
+  default     = "Live"
+  description = "The Lambda Alias for CodeDeploy to use.  If it does not exist on a Lambda it will be created"
 }

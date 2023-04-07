@@ -35,11 +35,12 @@ module "api" {
   stage_variables = {}
 
   open_api_variables = {
-    helloLambdaInvocationArn = module.lambda_functions["hello-world"].function_invoke_arn
+    helloLambdaInvocationArn = module.lambda_functions["hello-world"].invoke_arn
   }
 
   depends_on = [
-    module.lambda_functions
+    module.lambda_functions,
+    module.code_deploy
   ]
 }
 
@@ -50,7 +51,7 @@ module "lambda_functions" {
 
   abs_file_path    = each.value.abs_file_path
   bucket_name      = module.project_bucket.s3_bucket_name
-  function_alias   = "Live"
+  function_alias   = "Latest"
   function_handler = each.value.function_handler
   function_name    = each.key
 
@@ -61,20 +62,22 @@ module "lambda_functions" {
 }
 
 # CodeDeploy
-# module "code_deploy" {
-#   source = "../../modules/deploy"
+module "code_deploy" {
+  source = "../deploy"
 
-#   app_prefix = var.app_name
-#   groups = { for name, _ in local.lambdas : name => {
-#     config_name     = "CodeDeployDefault.LambdaAllAtOnce"
-#     alias           = "Live"
-#     current_version = module.lambda_functions[name].function_version > 1 ? module.lambda_functions[name].function_version - 1 : module.lambda_functions[name].function_version
-#     target_version  = module.lambda_functions[name].function_version
-#   } }
-#   s3_bucket               = module.project_bucket.s3_bucket_name
-#   deploy_command_abs_path = abspath(var.code_deploy_script_path)
+  app_prefix = var.app_name
 
-#   depends_on = [
-#     module.lambda_functions
-#   ]
-# }
+  groups = { for name in keys(local.lambdas) : name => {
+    deploy_config_name = "CodeDeployDefault.LambdaAllAtOnce"
+  } }
+
+  # The lambda names must be consistent for Terraform to accurately plan.  Map keys in a for_each meta-argument cannot be dynamic.
+  lambda_names = toset(keys(local.lambdas))
+
+  s3_bucket               = module.project_bucket.s3_bucket_name
+  deploy_command_abs_path = abspath("${local.root_dir_rel_path}/${var.code_deploy_script_path}")
+
+  depends_on = [
+    module.lambda_functions
+  ]
+}

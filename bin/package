@@ -9,6 +9,7 @@ zip_it_good() {
   local root=$1
   local dir=$2
   cd "$dir"
+  # TODO: https://stackoverflow.com/questions/19523063/zip-utility-giving-me-different-md5sum-every-time-in-linux
   chmod -R 755 .
   zip "/$root/tmp/$dir.zip" "$dir"
   cd ..

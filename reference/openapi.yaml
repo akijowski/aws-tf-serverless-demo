@@ -21,6 +21,13 @@ paths:
         - lambda
       operationId: get-hello-world
       summary: Hello World Lambda
+      parameters:
+        - name: name
+          in: query
+          required: false
+          description: change the name in the response with this cool query param
+          schema:
+            type: string
       description: Invokes a simple Hello World Lambda
       responses:
         '200':

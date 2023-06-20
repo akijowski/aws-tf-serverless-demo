@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -12,16 +13,23 @@ import (
 
 var logger *log.Logger
 
-func handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+type Request events.APIGatewayProxyRequest
+type Response events.APIGatewayProxyResponse
+
+func handler(ctx context.Context, req Request) (Response, error) {
 	lc, ok := lambdacontext.FromContext(ctx)
 	if ok {
 		logger.Printf("%+v\n", lc)
 	}
 	logger.Printf("%+v\n", req)
-	return events.APIGatewayProxyResponse{
+	name := "world"
+	if nameParam, ok := req.QueryStringParameters["name"]; ok {
+		name = nameParam
+	}
+	return Response{
 		StatusCode: http.StatusOK,
 		Headers:    map[string]string{"Content-Type": "application/json"},
-		Body:       `{"message": "hello world"}`,
+		Body:       fmt.Sprintf(`{"message": "hello %s"}`, name),
 	}, nil
 }
 

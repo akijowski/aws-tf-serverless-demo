@@ -42,6 +42,8 @@ tasks:
 
   integration-test:
     desc: Run integration test with docker-compose
+    deps:
+      - package
     cmds:
-       - docker compose -f docker-compose.integration.yml up --exit-code-from integration
+       - docker compose -f docker-compose.integration.yml up --exit-code-from integration --build --force-recreate
        - docker compose -f docker-compose.integration.yml down

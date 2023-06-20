@@ -5,28 +5,20 @@ set -eou pipefail
 PROJECT_ROOT=${PWD#/*}
 PROJECT_ROOT=${PROJECT_ROOT:-/}
 
-build() {
-  local root=$1
-  local dir=$2
-  cd "$dir"
-  GOOS=linux GOARCH=amd64 go build -trimpath -o=/"$root"/out/"$dir"/ .
-  cd ..
+go_build () {
+    local dir=$1
+    local out_dir=$2
+    GOOS=linux GOARCH=amd64 go build -C "$dir" -trimpath -o "$out_dir" .
 }
 
-do_work() {
-  local startDir="functions"
-  if [ -n "${1-}" ]; then
-    startDir="$1"
-  fi
-  echo -e "Using project root: $PROJECT_ROOT"
-  cd "$startDir"
-  for dir in *; do
-    if [ -d "$dir" ]; then
-      echo -e "Building Go binary in $startDir/$dir/ to /$PROJECT_ROOT/out/$dir/"
-      build "$PROJECT_ROOT" "$dir"
-    fi
-  done
-  cd ..
+main () {
+    cd "./functions"
+    for dir in *; do
+        if [ -d "$dir" ]; then
+            go_build "$dir" "/$PROJECT_ROOT/out/$dir/"
+        fi
+    done
+    cd ..
 }
 
-do_work "$@"
+main "$@"

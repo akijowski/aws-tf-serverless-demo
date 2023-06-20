@@ -5,17 +5,18 @@ set -eou pipefail
 PROJECT_ROOT=${PWD#/*}
 PROJECT_ROOT=${PROJECT_ROOT:-/}
 
-zip_it_good() {
+zip_it_good () {
   local root=$1
   local dir=$2
   cd "$dir"
-  # TODO: https://stackoverflow.com/questions/19523063/zip-utility-giving-me-different-md5sum-every-time-in-linux
+  # https://stackoverflow.com/questions/19523063/zip-utility-giving-me-different-md5sum-every-time-in-linux
   chmod -R 755 .
-  zip "/$root/tmp/$dir.zip" "$dir"
+  touch -d '1985-10-21 09:00:00' .
+  zip -X -D "/$root/tmp/$dir.zip" "$dir"
   cd ..
 }
 
-do_work() {
+main () {
   local startDir="out"
   if [ -n "${1-}" ]; then
     startDir="$1"
@@ -32,4 +33,4 @@ do_work() {
   cd ..
 }
 
-do_work "$@"
+main "$@"

@@ -32,12 +32,31 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/HelloWorldResponse'
-      x-amazon-apigateway-request-validator: none
+      x-amazon-apigateway-request-validator: params-only
       x-amazon-apigateway-integration:
         type: aws_proxy
         httpMethod: POST
         passthroughBehavior: when_no_templates
         uri: ${helloLambdaInvocationArn}
+
+  /keys:
+    post:
+      tags:
+        - lambda
+      operationId: post-keys
+      summary: Create a k-v entry
+      description: Writes a new key/value entry
+      requestBody:
+        $ref: "#/components/requestBodies/KVCreationRequest"
+      responses:
+        '201':
+          $ref: "#/components/responses/KVCreationResponse"
+      x-amazon-apigateway-request-validator: all
+      x-amazon-apigateway-integration:
+        type: aws_proxy
+        httpMethod: POST
+        passthroughBehavior: when_no_templates
+        uri: ${keyLambdaInvocationArn}
 
   /ping:
     get:
@@ -78,20 +97,51 @@ x-amazon-apigateway-request-validators:
     validateRequestParameters: false
 
 components:
+  requestBodies:
+    KVCreationRequest:
+      description: Key-value entry creation request
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/KVEntry"
+
   responses:
+    KVCreationResponse:
+      description: Successful key-value entry creation
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/KVEntry"
+
     PongResponse:
       description: A simple ping-pong response
       content:
         text/plain:
           schema:
             $ref: '#/components/schemas/Pong'
+
     HelloWorldResponse:
       description: Hello-world response
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/HelloWorld'
+
   schemas:
+    KVEntry:
+      description: An entry in the Key-Value store
+      type: object
+      properties:
+        key:
+          type: string
+          minLength: 3
+        value:
+          type: string
+          minLength: 3
+      required:
+        - key
+        - value
+
     Pong:
       description: A simple ping-pong response body
       type: string

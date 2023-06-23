@@ -12,12 +12,19 @@ import (
 )
 
 type GetKeyStore interface {
-	GetItem(context.Context, string) (*types.KeyValueEntry, error)
+	GetEntryByKey(context.Context, string) (*types.KeyValueEntry, error)
 }
 
 type GetKeyEntryTask struct {
 	logger slog.Logger
 	store  GetKeyStore
+}
+
+func NewGetKeyEntry(logger slog.Logger, store GetKeyStore) *GetKeyEntryTask {
+	return &GetKeyEntryTask{
+		logger: logger,
+		store:  store,
+	}
 }
 
 func (t *GetKeyEntryTask) HandleGetKeyAPIRequest(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
@@ -30,7 +37,7 @@ func (t *GetKeyEntryTask) HandleGetKeyAPIRequest(ctx context.Context, req events
 	if !ok {
 		trans.SendError(ctx, http.StatusBadRequest, errors.New("missing required path param: keyID"))
 	}
-	found, err := t.store.GetItem(ctx, keyId)
+	found, err := t.store.GetEntryByKey(ctx, keyId)
 	if err != nil {
 		trans.SendError(ctx, http.StatusInternalServerError, err)
 	}

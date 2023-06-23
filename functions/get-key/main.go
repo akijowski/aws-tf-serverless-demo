@@ -14,7 +14,7 @@ import (
 
 func main() {
 	s := slogjson.Sink(os.Stdout)
-	logger := slog.Make(s).Named("post-key")
+	logger := slog.Make(s).Named("get-key")
 
 	dynamoClient, err := dynamo.NewClient()
 	if err != nil {
@@ -22,7 +22,7 @@ func main() {
 	}
 
 	kvStore := store.With(logger, "my-table")
-	task := tasks.NewCreateKeyEntry(logger, kvStore.CreateStoreWith(dynamoClient))
+	task := tasks.NewGetKeyEntry(logger, kvStore.GetStoreWith(dynamoClient))
 
-	lambda.Start(task.HandleCreateKeyAPIEvent)
+	lambda.Start(task.HandleGetKeyAPIRequest)
 }

@@ -12,7 +12,7 @@ import (
 
 type mockGetKeyStore func(context.Context, string) (*types.KeyValueEntry, error)
 
-func (m mockGetKeyStore) GetItem(ctx context.Context, key string) (*types.KeyValueEntry, error) {
+func (m mockGetKeyStore) GetEntryByKey(ctx context.Context, key string) (*types.KeyValueEntry, error) {
 	return m(ctx, key)
 }
 

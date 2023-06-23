@@ -28,6 +28,11 @@ tasks:
     generates:
       - tmp/**
 
+  test:
+    desc: go test
+    cmds:
+      - go test -v ./internal/...
+
   sam-local:
     desc: Start a Lambda container with AWS SAM
     deps:

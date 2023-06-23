@@ -17,6 +17,10 @@ type PutItemAPI interface {
 	PutItem(context.Context, *dynamodb.PutItemInput, ...func(*dynamodb.Options)) (*dynamodb.PutItemOutput, error)
 }
 
+type GetItemAPI interface {
+	GetItem(context.Context, *dynamodb.GetItemInput, ...func(*dynamodb.Options)) (*dynamodb.GetItemOutput, error)
+}
+
 type keyValueDynamoRecord struct {
 	PrimaryKey string    `json:"pk"`
 	Key        string    `json:"key"`
@@ -42,6 +46,12 @@ func (s createKeyStore) CreateIfNotExists(ctx context.Context, entry *types.KeyV
 	return s(ctx, entry)
 }
 
+type getKeyStore func(context.Context, string) (*types.KeyValueEntry, error)
+
+func (s getKeyStore) GetEntryByKey(ctx context.Context, key string) (*types.KeyValueEntry, error) {
+	return s(ctx, key)
+}
+
 func (s *KeyValueStore) CreateStoreWith(client PutItemAPI) createKeyStore {
 	return createKeyStore(func(ctx context.Context, entry *types.KeyValueEntry) error {
 		record := &keyValueDynamoRecord{
@@ -61,6 +71,39 @@ func (s *KeyValueStore) CreateStoreWith(client PutItemAPI) createKeyStore {
 		_, err = client.PutItem(ctx, input)
 
 		return err
+	})
+}
+
+func (s *KeyValueStore) GetStoreWith(client GetItemAPI) getKeyStore {
+	return getKeyStore(func(ctx context.Context, key string) (*types.KeyValueEntry, error) {
+		pk := fmt.Sprintf("KEY#%s", key)
+		ctx = slog.With(ctx, slog.F("primary_key", pk))
+
+		s.logger.Info(ctx, "retrieving record")
+
+		keyAttr, err := attributevalue.MarshalMap(map[string]string{"pk": pk})
+		if err != nil {
+			return nil, err
+		}
+
+		output, err := client.GetItem(ctx, &dynamodb.GetItemInput{
+			TableName: aws.String(s.tableName),
+			Key:       keyAttr,
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		var record *keyValueDynamoRecord
+		if err := attributevalue.UnmarshalMap(output.Item, &record); err != nil {
+			return nil, err
+		}
+		s.logger.Debug(ctx, "found record", slog.F("record", *record))
+
+		return &types.KeyValueEntry{
+			Key:   record.Key,
+			Value: record.Value,
+		}, nil
 	})
 }
 

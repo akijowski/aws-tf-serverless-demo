@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"cdr.dev/slog"
-	"github.com/akijowski/aws-tf-serverless-demo/internal/store"
 	"github.com/akijowski/aws-tf-serverless-demo/internal/transport"
 	"github.com/akijowski/aws-tf-serverless-demo/internal/types"
 	"github.com/aws/aws-lambda-go/events"
@@ -14,18 +13,19 @@ import (
 )
 
 type CreateKeyStore interface {
-	CreateIfNotExists(context.Context, store.PutItemAPI, *types.KeyValueEntry) error
+	CreateIfNotExists(context.Context, *types.KeyValueEntry) error
 }
 
 type CreateKeyEntryTask struct {
-	logger    slog.Logger
-	tableName string
-	dbClient  store.PutItemAPI
-	store     CreateKeyStore
+	logger slog.Logger
+	store  CreateKeyStore
 }
 
-func NewCreateKeyEntry(logger slog.Logger, tableName string, client store.PutItemAPI) *CreateKeyEntryTask {
-	return &CreateKeyEntryTask{logger, tableName, client, store.With(logger, tableName)}
+func NewCreateKeyEntry(logger slog.Logger, store CreateKeyStore) *CreateKeyEntryTask {
+	return &CreateKeyEntryTask{
+		logger: logger,
+		store:  store,
+	}
 }
 
 func (t *CreateKeyEntryTask) HandleCreateKeyAPIEvent(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
@@ -36,9 +36,10 @@ func (t *CreateKeyEntryTask) HandleCreateKeyAPIEvent(ctx context.Context, req ev
 	if err := json.Unmarshal([]byte(req.Body), &entry); err != nil {
 		return trans.SendError(ctx, http.StatusBadRequest, err)
 	}
-	if err := t.store.CreateIfNotExists(ctx, t.dbClient, entry); err != nil {
+	if err := t.store.CreateIfNotExists(ctx, entry); err != nil {
 		return trans.SendError(ctx, http.StatusInternalServerError, err)
 	}
+
 	return trans.Send(ctx, http.StatusCreated, entry)
 }
 

@@ -6,6 +6,7 @@ import (
 
 	"cdr.dev/slog"
 	"cdr.dev/slog/sloggers/slogjson"
+	"github.com/akijowski/aws-tf-serverless-demo/internal/store"
 	"github.com/akijowski/aws-tf-serverless-demo/internal/tasks"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -18,10 +19,11 @@ func main() {
 
 	dynamoClient, err := newDynamoClient()
 	if err != nil {
-		logger.Fatal(context.Background(), "error building dynamo client", slog.F("error", err))
+		logger.Fatal(context.Background(), "error building dynamo client", slog.Error(err))
 	}
 
-	task := tasks.NewCreateKeyEntry(logger, "my-table", dynamoClient)
+	kvStore := store.With(logger, "my-table")
+	task := tasks.NewCreateKeyEntry(logger, kvStore.CreateStoreWith(dynamoClient))
 
 	lambda.Start(task.HandleCreateKeyAPIEvent)
 }

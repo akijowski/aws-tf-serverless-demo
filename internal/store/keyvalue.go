@@ -36,24 +36,32 @@ func With(logger slog.Logger, tableName string) *KeyValueStore {
 	}
 }
 
-func (s *KeyValueStore) CreateIfNotExists(ctx context.Context, client PutItemAPI, entry *types.KeyValueEntry) error {
-	record := &keyValueDynamoRecord{
-		PrimaryKey: fmt.Sprintf("KEY#%s", entry.Key),
-		Key:        entry.Key,
-		Value:      entry.Value,
-		CreatedAt:  time.Now(),
-	}
-	s.logger.Info(ctx, "saving record", slog.F("record", *record))
+type createKeyStore func(context.Context, *types.KeyValueEntry) error
 
-	input, err := createInputFromRecord(s.tableName, record)
-	if err != nil {
+func (s createKeyStore) CreateIfNotExists(ctx context.Context, entry *types.KeyValueEntry) error {
+	return s(ctx, entry)
+}
+
+func (s *KeyValueStore) CreateStoreWith(client PutItemAPI) createKeyStore {
+	return createKeyStore(func(ctx context.Context, entry *types.KeyValueEntry) error {
+		record := &keyValueDynamoRecord{
+			PrimaryKey: fmt.Sprintf("KEY#%s", entry.Key),
+			Key:        entry.Key,
+			Value:      entry.Value,
+			CreatedAt:  time.Now(),
+		}
+		s.logger.Info(ctx, "saving record", slog.F("record", *record))
+
+		input, err := createInputFromRecord(s.tableName, record)
+		if err != nil {
+			return err
+		}
+
+		s.logger.Info(ctx, "conditional put to dynamodb")
+		_, err = client.PutItem(ctx, input)
+
 		return err
-	}
-
-	s.logger.Info(ctx, "conditional put to dynamodb")
-	_, err = client.PutItem(ctx, input)
-
-	return err
+	})
 }
 
 func createInputFromRecord(tableName string, record *keyValueDynamoRecord) (*dynamodb.PutItemInput, error) {

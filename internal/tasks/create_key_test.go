@@ -2,19 +2,19 @@ package tasks
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"testing"
 
 	"cdr.dev/slog/sloggers/slogtest"
-	"github.com/akijowski/aws-tf-serverless-demo/internal/store"
 	"github.com/akijowski/aws-tf-serverless-demo/internal/types"
 	"github.com/aws/aws-lambda-go/events"
 )
 
-type mockCreateKeyStore func(context.Context, store.PutItemAPI, *types.KeyValueEntry) error
+type mockCreateKeyStore func(context.Context, *types.KeyValueEntry) error
 
-func (m mockCreateKeyStore) CreateIfNotExists(ctx context.Context, c store.PutItemAPI, e *types.KeyValueEntry) error {
-	return m(ctx, c, e)
+func (m mockCreateKeyStore) CreateIfNotExists(ctx context.Context, e *types.KeyValueEntry) error {
+	return m(ctx, e)
 }
 
 func TestHandleCreateKeyAPIEvent(t *testing.T) {
@@ -31,7 +31,7 @@ func TestHandleCreateKeyAPIEvent(t *testing.T) {
 				Body: `{"key": "abc", "value": "123"}`,
 			},
 			store: func(t *testing.T) CreateKeyStore {
-				return mockCreateKeyStore(func(ctx context.Context, pia store.PutItemAPI, kve *types.KeyValueEntry) error {
+				return mockCreateKeyStore(func(ctx context.Context, kve *types.KeyValueEntry) error {
 					t.Helper()
 
 					return nil
@@ -41,6 +41,23 @@ func TestHandleCreateKeyAPIEvent(t *testing.T) {
 				StatusCode: http.StatusCreated,
 				Headers:    map[string]string{"Content-Type": "application/json"},
 				Body:       `{"key":"abc","value":"123"}`,
+			},
+		},
+		"store error returns internal server error": {
+			given: events.APIGatewayProxyRequest{
+				Body: `{"key": "abc", "value": "123"}`,
+			},
+			store: func(t *testing.T) CreateKeyStore {
+				return mockCreateKeyStore(func(ctx context.Context, kve *types.KeyValueEntry) error {
+					t.Helper()
+
+					return errors.New("store error")
+				})
+			},
+			want: events.APIGatewayProxyResponse{
+				StatusCode: http.StatusInternalServerError,
+				Headers:    map[string]string{"Content-Type": "application/json"},
+				Body:       `{"message":"store error"}`,
 			},
 		},
 	}

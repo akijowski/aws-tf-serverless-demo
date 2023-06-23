@@ -45,8 +45,9 @@ func TestCreateIfNotExists(t *testing.T) {
 				logger:    testLogger,
 				tableName: "foo",
 			}
+			createStore := store.CreateStoreWith(tt.db(t))
 
-			actual := store.CreateIfNotExists(context.Background(), tt.db(t), tt.given)
+			actual := createStore.CreateIfNotExists(context.Background(), tt.given)
 
 			if actual != tt.want {
 				t.Error("incorrect response")

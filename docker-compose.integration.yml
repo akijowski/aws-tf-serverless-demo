@@ -7,11 +7,28 @@ services:
       context: .
     container_name: hello-lambda
 
+  post-key-lambda:
+    image: post-key-lambda
+    build:
+      context: .
+      args:
+        - BINARY_NAME=post-key
+        - FUNCTION_NAME=PostKeyFunction
+    container_name: post-key-lambda
+    depends_on:
+      - dynamodb-local
+    environment:
+      HUMAN_LOGS: true
+      DYNAMODB_ENDPOINT: 'http://dynamodb-local:8000'
+      KV_TABLE_NAME: key-values
+
   integration:
     image: golang:1.20-bullseye
     container_name: integration-test
     depends_on:
       - hello-lambda
+      - post-key-lambda
+      - dynamodb-local
     volumes:
       - .:/code
     working_dir: /code/test/integration
@@ -20,3 +37,11 @@ services:
       AWS_ACCESS_KEY_ID: defaultkey
       AWS_SECRET_ACCESS_KEY: defaultsecret
       AWS_REGION: us-east-1
+
+  dynamodb-local:
+    command: "-jar DynamoDBLocal.jar -inMemory"
+    image: "amazon/dynamodb-local:latest"
+    container_name: dynamodb-local
+    ports:
+      - "8000:8000"
+    working_dir: /home/dynamodblocal

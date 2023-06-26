@@ -2,6 +2,7 @@ package store
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -11,6 +12,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/expression"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	dbtypes "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
 
 type PutItemAPI interface {
@@ -22,17 +24,19 @@ type GetItemAPI interface {
 }
 
 type keyValueDynamoRecord struct {
-	PrimaryKey string    `json:"pk"`
-	Key        string    `json:"key"`
-	Value      string    `json:"value"`
-	CreatedAt  time.Time `json:"created_at"`
+	PrimaryKey string    `json:"pk" dynamodbav:"pk"`
+	Key        string    `json:"key" dynamodbav:"key"`
+	Value      string    `json:"value" dynamodbav:"value"`
+	CreatedAt  time.Time `json:"created_at" dynamodbav:"created_at"`
 }
 
+// KeyValueStore is a factory-like struct that provides functions to generate functional stores based on relevant CRUD operations.
 type KeyValueStore struct {
 	logger    slog.Logger
 	tableName string
 }
 
+// With returns a factory for KeyValueStore.  Functional stores can then be created from this factory.
 func With(logger slog.Logger, tableName string) *KeyValueStore {
 	return &KeyValueStore{
 		logger,
@@ -42,6 +46,7 @@ func With(logger slog.Logger, tableName string) *KeyValueStore {
 
 type createKeyStore func(context.Context, *types.KeyValueEntry) error
 
+// CreateIfNotExists conditionally saves a new types.KeyValueEntry if the item is not present based on the Key value.
 func (s createKeyStore) CreateIfNotExists(ctx context.Context, entry *types.KeyValueEntry) error {
 	return s(ctx, entry)
 }
@@ -52,6 +57,8 @@ func (s getKeyStore) GetEntryByKey(ctx context.Context, key string) (*types.KeyV
 	return s(ctx, key)
 }
 
+// CreateStoreWith returns a functional store that can be used to conditionally save a types.KeyValueEntry.
+// If the entry already exists, the item will not be updated an no error returned.
 func (s *KeyValueStore) CreateStoreWith(client PutItemAPI) createKeyStore {
 	return createKeyStore(func(ctx context.Context, entry *types.KeyValueEntry) error {
 		record := &keyValueDynamoRecord{
@@ -67,9 +74,14 @@ func (s *KeyValueStore) CreateStoreWith(client PutItemAPI) createKeyStore {
 			return err
 		}
 
+		s.logger.Debug(ctx, "input", slog.F("Item", input.Item))
 		s.logger.Info(ctx, "conditional put to dynamodb")
 		_, err = client.PutItem(ctx, input)
-
+		var cfe *dbtypes.ConditionalCheckFailedException
+		if errors.As(err, &cfe) {
+			s.logger.Info(ctx, "condition failed", slog.Error(cfe))
+			return nil
+		}
 		return err
 	})
 }

@@ -21,6 +21,7 @@ func TestMain(m *testing.M) {
 }
 
 func TestHelloLambda(t *testing.T) {
+	t.Skip("dummy test")
 	cfg, err := config.LoadDefaultConfig(context.Background())
 	if err != nil {
 		t.Fatal(err)

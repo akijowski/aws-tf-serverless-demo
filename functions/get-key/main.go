@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"os"
 
 	"cdr.dev/slog"
@@ -12,16 +13,24 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 )
 
+const envTableName = "KV_TABLE_NAME"
+
 func main() {
+	ctx := context.Background()
+
 	s := slogjson.Sink(os.Stdout)
 	logger := slog.Make(s).Named("get-key")
 
-	dynamoClient, err := dynamo.NewClient()
+	dynamoClient, err := dynamo.NewClient(ctx, logger)
 	if err != nil {
 		logger.Fatal(context.Background(), "error building dynamo client", slog.Error(err))
 	}
+	tableName := os.Getenv(envTableName)
+	if tableName == "" {
+		logger.Fatal(ctx, fmt.Sprintf("missing required env: %q", envTableName))
+	}
 
-	kvStore := store.With(logger, "my-table")
+	kvStore := store.With(logger, tableName)
 	task := tasks.NewGetKeyEntry(logger, kvStore.GetStoreWith(dynamoClient))
 
 	lambda.Start(task.HandleGetKeyAPIRequest)

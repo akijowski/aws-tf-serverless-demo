@@ -22,6 +22,21 @@ services:
       DYNAMODB_ENDPOINT: 'http://dynamodb-local:8000'
       KV_TABLE_NAME: key-values
 
+  get-key-lambda:
+    image: get-key-lambda
+    build:
+      context: .
+      args:
+        - BINARY_NAME=get-key
+        - FUNCTION_NAME=GetKeyFunction
+    container_name: get-key-lambda
+    depends_on:
+      - dynamodb-local
+    environment:
+      HUMAN_LOGS: true
+      DYNAMODB_ENDPOINT: 'http://dynamodb-local:8000'
+      KV_TABLE_NAME: get-key-values
+
   integration:
     image: golang:1.20-bullseye
     container_name: integration-test

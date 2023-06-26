@@ -30,6 +30,7 @@ func NewCreateKeyEntry(logger slog.Logger, store CreateKeyStore) *CreateKeyEntry
 
 func (t *CreateKeyEntryTask) HandleCreateKeyAPIEvent(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	ctx = withReqContext(ctx, req.RequestContext)
+	ctx = withReqInfo(ctx, req)
 	t.logger.Info(ctx, "handling request")
 	trans := transport.NewAPIGateway(t.logger)
 	var entry *types.KeyValueEntry
@@ -49,5 +50,14 @@ func withReqContext(ctx context.Context, reqCtx events.APIGatewayProxyRequestCon
 	if ok {
 		updatedCtx = slog.With(updatedCtx, slog.F("lambda_request_id", lc.AwsRequestID))
 	}
+	return updatedCtx
+}
+
+func withReqInfo(ctx context.Context, req events.APIGatewayProxyRequest) context.Context {
+	updatedCtx := slog.With(ctx, slog.F("path", req.Path), slog.F("method", req.HTTPMethod))
+	if len(req.PathParameters) > 0 {
+		updatedCtx = slog.With(ctx, slog.F("path_params", req.PathParameters))
+	}
+
 	return updatedCtx
 }

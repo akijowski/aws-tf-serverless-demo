@@ -53,6 +53,7 @@ func (s createKeyStore) CreateIfNotExists(ctx context.Context, entry *types.KeyV
 
 type getKeyStore func(context.Context, string) (*types.KeyValueEntry, error)
 
+// GetEntryByKey retrieves an entry for a given key.  If no entry is found, returns nil.
 func (s getKeyStore) GetEntryByKey(ctx context.Context, key string) (*types.KeyValueEntry, error) {
 	return s(ctx, key)
 }
@@ -86,6 +87,8 @@ func (s *KeyValueStore) CreateStoreWith(client PutItemAPI) createKeyStore {
 	})
 }
 
+// GetStoreWith returns a functional store that can be used to retrieve a types.KeyValueEntry for a given key.
+// If the entry is not found, no error is returned, and types.KeyValueEntry is nil.
 func (s *KeyValueStore) GetStoreWith(client GetItemAPI) getKeyStore {
 	return getKeyStore(func(ctx context.Context, key string) (*types.KeyValueEntry, error) {
 		pk := fmt.Sprintf("KEY#%s", key)
@@ -104,6 +107,10 @@ func (s *KeyValueStore) GetStoreWith(client GetItemAPI) getKeyStore {
 		})
 		if err != nil {
 			return nil, err
+		}
+		if len(output.Item) == 0 {
+			s.logger.Warn(ctx, "record not found")
+			return nil, nil
 		}
 
 		var record *keyValueDynamoRecord

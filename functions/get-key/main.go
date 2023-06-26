@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"cdr.dev/slog"
+	"cdr.dev/slog/sloggers/sloghuman"
 	"cdr.dev/slog/sloggers/slogjson"
 	"github.com/akijowski/aws-tf-serverless-demo/internal/dynamo"
 	"github.com/akijowski/aws-tf-serverless-demo/internal/store"
@@ -19,6 +20,9 @@ func main() {
 	ctx := context.Background()
 
 	s := slogjson.Sink(os.Stdout)
+	if isHumanLogs := os.Getenv("HUMAN_LOGS"); isHumanLogs != "" {
+		s = sloghuman.Sink(os.Stdout)
+	}
 	logger := slog.Make(s).Named("get-key")
 
 	dynamoClient, err := dynamo.NewClient(ctx, logger)

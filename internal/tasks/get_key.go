@@ -29,17 +29,21 @@ func NewGetKeyEntry(logger slog.Logger, store GetKeyStore) *GetKeyEntryTask {
 
 func (t *GetKeyEntryTask) HandleGetKeyAPIRequest(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	ctx = withReqContext(ctx, req.RequestContext)
+	ctx = withReqInfo(ctx, req)
 
 	t.logger.Info(ctx, "handling request")
 	trans := transport.NewAPIGateway(t.logger)
 
 	keyId, ok := req.PathParameters["keyID"]
 	if !ok {
-		trans.SendError(ctx, http.StatusBadRequest, errors.New("missing required path param: keyID"))
+		return trans.SendError(ctx, http.StatusBadRequest, errors.New("missing required path param: keyID"))
 	}
 	found, err := t.store.GetEntryByKey(ctx, keyId)
 	if err != nil {
-		trans.SendError(ctx, http.StatusInternalServerError, err)
+		return trans.SendError(ctx, http.StatusInternalServerError, err)
+	}
+	if found == nil {
+		return trans.SendError(ctx, http.StatusNotFound, errors.New("entry not found"))
 	}
 
 	return trans.Send(ctx, http.StatusOK, found)

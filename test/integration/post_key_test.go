@@ -19,11 +19,9 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-const testTableName = "key-values"
-
-func KeyValueSchema() *dynamodb.CreateTableInput {
+func KeyValueSchema(tableName string) *dynamodb.CreateTableInput {
 	return &dynamodb.CreateTableInput{
-		TableName: aws.String(testTableName),
+		TableName: aws.String(tableName),
 		KeySchema: []types.KeySchemaElement{
 			{
 				AttributeName: aws.String("pk"),
@@ -48,13 +46,15 @@ func TestPostKeyLambda(t *testing.T) {
 
 	ctx := context.Background()
 
+	testTableName := "key-values"
+
 	cfg, err := config.LoadDefaultConfig(ctx,
 		config.WithLogConfigurationWarnings(true),
 		config.WithClientLogMode(aws.LogResponseWithBody))
 	require.NoError(t, err)
 
 	// create local dynamo
-	localDynamo := newLocalDynamo(KeyValueSchema)
+	localDynamo := newLocalDynamo(testTableName, KeyValueSchema)
 
 	// create lambda client
 	endpointOpt := lambda.WithEndpointResolver(lambda.EndpointResolverFromURL("http://post-key-lambda:8080"))
@@ -70,7 +70,8 @@ func TestPostKeyLambda(t *testing.T) {
 				RequestContext: events.APIGatewayProxyRequestContext{
 					RequestID: "aws-abc-1234567890",
 				},
-				Body: `{"key":"abcdefg","value":"hijklmnop"}`,
+				HTTPMethod: http.MethodPost,
+				Body:       `{"key":"abcdefg","value":"hijklmnop"}`,
 			},
 			want: events.APIGatewayProxyResponse{
 				StatusCode: http.StatusCreated,
@@ -83,7 +84,8 @@ func TestPostKeyLambda(t *testing.T) {
 				RequestContext: events.APIGatewayProxyRequestContext{
 					RequestID: "aws-abc-1234567890",
 				},
-				Body: `{"key":"12345","value":"hijklmnop"}`,
+				HTTPMethod: http.MethodPost,
+				Body:       `{"key":"12345","value":"hijklmnop"}`,
 			},
 			dbData: []map[string]types.AttributeValue{
 				{
@@ -129,12 +131,14 @@ func TestPostKeyLambda(t *testing.T) {
 }
 
 type localDynamo struct {
-	schema func() *dynamodb.CreateTableInput
+	tableName string
+	schema    func(string) *dynamodb.CreateTableInput
 }
 
-func newLocalDynamo(schema func() *dynamodb.CreateTableInput) *localDynamo {
+func newLocalDynamo(tableName string, schema func(string) *dynamodb.CreateTableInput) *localDynamo {
 	return &localDynamo{
-		schema: schema,
+		tableName: tableName,
+		schema:    schema,
 	}
 }
 
@@ -145,7 +149,7 @@ func (l *localDynamo) newTest(t testing.TB, cfg aws.Config) *dynamodb.Client {
 	cfg.ClientLogMode = 0
 	client := dynamodb.NewFromConfig(cfg, endpointOpt)
 
-	schema := l.schema()
+	schema := l.schema(l.tableName)
 
 	_, err := client.CreateTable(ctx, schema)
 	if err != nil {

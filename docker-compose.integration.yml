@@ -37,12 +37,29 @@ services:
       DYNAMODB_ENDPOINT: 'http://dynamodb-local:8000'
       KV_TABLE_NAME: get-key-values
 
+  delete-key-lambda:
+    image: delete-key-lambda
+    build:
+      context: .
+      args:
+        - BINARY_NAME=delete-key
+        - FUNCTION_NAME=DeleteKeyFunction
+    container_name: delete-key-lambda
+    depends_on:
+      - dynamodb-local
+    environment:
+      HUMAN_LOGS: true
+      DYNAMODB_ENDPOINT: 'http://dynamodb-local:8000'
+      KV_TABLE_NAME: delete-key-values
+
   integration:
     image: golang:1.20-bullseye
     container_name: integration-test
     depends_on:
       - hello-lambda
       - post-key-lambda
+      - get-key-lambda
+      - delete-key-lambda
       - dynamodb-local
     volumes:
       - .:/code

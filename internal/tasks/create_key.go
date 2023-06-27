@@ -3,6 +3,7 @@ package tasks
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 
 	"cdr.dev/slog"
@@ -36,6 +37,9 @@ func (t *CreateKeyEntryTask) HandleCreateKeyAPIEvent(ctx context.Context, req ev
 	var entry *types.KeyValueEntry
 	if err := json.Unmarshal([]byte(req.Body), &entry); err != nil {
 		return trans.SendError(ctx, http.StatusBadRequest, err)
+	}
+	if entry.Key == "" {
+		return trans.SendError(ctx, http.StatusBadRequest, errors.New("key is required"))
 	}
 	if err := t.store.CreateIfNotExists(ctx, entry); err != nil {
 		return trans.SendError(ctx, http.StatusInternalServerError, err)

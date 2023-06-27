@@ -9,6 +9,8 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 )
 
+// NewClient returns a dynamodb.Client.
+// If DYNAMODB_ENDPOINT is set in the environment, the endpoint will be updated.  This is useful for tests.
 func NewClient(ctx context.Context, logger slog.Logger) (*dynamodb.Client, error) {
 	cfg, err := config.LoadDefaultConfig(ctx)
 	if err != nil {

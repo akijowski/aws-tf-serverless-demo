@@ -29,16 +29,19 @@ var jsonHeaders = map[string]string{"Content-Type": "application/json"}
 // Send marshals the information in to a response for API Gateway.
 // Any errors will route to SendError with a status code of 500.
 func (t *APIGatewayTransport) Send(ctx context.Context, statusCode int, body any) (events.APIGatewayProxyResponse, error) {
-	b, err := json.Marshal(body)
-	if err != nil {
-		return t.SendError(ctx, http.StatusInternalServerError, err)
-	}
-	t.logger.Info(ctx, "request complete", slog.F("status_code", statusCode))
-	return events.APIGatewayProxyResponse{
+	resp := events.APIGatewayProxyResponse{
 		StatusCode: statusCode,
 		Headers:    jsonHeaders,
-		Body:       string(b),
-	}, nil
+	}
+	if body != nil {
+		b, err := json.Marshal(body)
+		if err != nil {
+			return t.SendError(ctx, http.StatusInternalServerError, err)
+		}
+		resp.Body = string(b)
+	}
+	t.logger.Info(ctx, "request complete", slog.F("status_code", statusCode))
+	return resp, nil
 }
 
 // SendError marshals the information in to a response for API Gateway

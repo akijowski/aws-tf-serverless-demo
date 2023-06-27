@@ -100,6 +100,20 @@ func TestPostKeyLambda(t *testing.T) {
 				Body:       `{"key":"12345","value":"hijklmnop"}`,
 			},
 		},
+		"missing key returns bad request": {
+			given: events.APIGatewayProxyRequest{
+				RequestContext: events.APIGatewayProxyRequestContext{
+					RequestID: "aws-abc-1234567890",
+				},
+				HTTPMethod: http.MethodPost,
+				Body:       `{"key":"","value":"hijklmnop"}`,
+			},
+			want: events.APIGatewayProxyResponse{
+				StatusCode: http.StatusBadRequest,
+				Headers:    map[string]string{"Content-Type": "application/json"},
+				Body:       `{"message":"key is required"}`,
+			},
+		},
 	}
 
 	for name, tt := range cases {

@@ -23,6 +23,10 @@ type GetItemAPI interface {
 	GetItem(context.Context, *dynamodb.GetItemInput, ...func(*dynamodb.Options)) (*dynamodb.GetItemOutput, error)
 }
 
+type DeleteItemAPI interface {
+	DeleteItem(context.Context, *dynamodb.DeleteItemInput, ...func(*dynamodb.Options)) (*dynamodb.DeleteItemOutput, error)
+}
+
 type keyValueDynamoRecord struct {
 	PrimaryKey string    `json:"pk" dynamodbav:"pk"`
 	Key        string    `json:"key" dynamodbav:"key"`
@@ -55,6 +59,14 @@ type getKeyStore func(context.Context, string) (*types.KeyValueEntry, error)
 
 // GetEntryByKey retrieves an entry for a given key.  If no entry is found, returns nil.
 func (s getKeyStore) GetEntryByKey(ctx context.Context, key string) (*types.KeyValueEntry, error) {
+	return s(ctx, key)
+}
+
+type deleteKeyStore func(context.Context, string) error
+
+// DeleteEntryByKey removes a record from the store for the given primary key.
+// If the record does not exist, no error is returned.
+func (s deleteKeyStore) DeleteEntryByKey(ctx context.Context, key string) error {
 	return s(ctx, key)
 }
 
@@ -123,6 +135,27 @@ func (s *KeyValueStore) GetStoreWith(client GetItemAPI) getKeyStore {
 			Key:   record.Key,
 			Value: record.Value,
 		}, nil
+	})
+}
+
+func (s *KeyValueStore) DeleteStoreWith(client DeleteItemAPI) deleteKeyStore {
+	return deleteKeyStore(func(ctx context.Context, key string) error {
+		pk := fmt.Sprintf("KEY#%s", key)
+		ctx = slog.With(ctx, slog.F("primary_key", pk))
+
+		s.logger.Info(ctx, "deleting record")
+
+		keyAttr, err := attributevalue.MarshalMap(map[string]string{"pk": pk})
+		if err != nil {
+			return err
+		}
+
+		_, err = client.DeleteItem(ctx, &dynamodb.DeleteItemInput{
+			TableName: aws.String(s.tableName),
+			Key:       keyAttr,
+		})
+
+		return err
 	})
 }
 

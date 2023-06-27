@@ -50,5 +50,5 @@ tasks:
     deps:
       - package
     cmds:
-       - docker compose -f docker-compose.integration.yml up --exit-code-from integration --build --force-recreate
+       - docker compose -f docker-compose.integration.yml up --exit-code-from integration --build
        - docker compose -f docker-compose.integration.yml down
